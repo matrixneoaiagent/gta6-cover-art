@@ -3,21 +3,182 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>Vice Graphix // Multi-Panel Cover Art Generator</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
+<div class="app-layout">
+  <!-- Left Control Panel -->
+  <aside class="control-deck">
+    <header class="deck-header">
+      <div class="logo-badge">VICE GRAPHIX</div>
+      <h1 class="deck-title">Multi-Panel Cover Studio</h1>
+      <p class="deck-desc">Craft iconic Vice City-style multi-panel poster art with sunset grading &amp; bold typography.</p>
+    </header>
+
+    <div class="deck-scroll">
+      <!-- Section: Layout & Canvas Ratio -->
+      <section class="deck-section">
+        <h2 class="section-title"><span class="section-icon">❖</span> Layout &amp; Framing</h2>
+        <div class="field-group">
+          <label class="field-label">Multi-Panel Layout</label>
+          <div class="layout-grid" id="layout-options">
+            <button type="button" class="layout-btn active" data-layout="classic">
+              <span class="layout-name">Vice Classic</span>
+              <span class="layout-sub">4 Panels (Hero Left)</span>
+            </button>
+            <button type="button" class="layout-btn" data-layout="ocean">
+              <span class="layout-name">Ocean Drive</span>
+              <span class="layout-sub">3 Panels (Panoramic Top)</span>
+            </button>
+            <button type="button" class="layout-btn" data-layout="neon">
+              <span class="layout-name">Neon Grid</span>
+              <span class="layout-sub">5 Panels (Poster Grid)</span>
+            </button>
+            <button type="button" class="layout-btn" data-layout="poster">
+              <span class="layout-name">Poster Frame</span>
+              <span class="layout-sub">3 Panels (Full Bleed + Inset)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Export Format &amp; Ratio</label>
+          <div class="button-toggle-group" id="ratio-options">
+            <button type="button" class="toggle-btn active" data-ratio="landscape" data-w="1920" data-h="1080">16:9 Landscape</button>
+            <button type="button" class="toggle-btn" data-ratio="square" data-w="1080" data-h="1080">1:1 Square</button>
+            <button type="button" class="toggle-btn" data-ratio="portrait" data-w="1080" data-h="1350">4:5 Portrait</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Color Grade -->
+      <section class="deck-section">
+        <h2 class="section-title"><span class="section-icon">☼</span> Sunset &amp; Neon Color Grade</h2>
+        <div class="grade-grid" id="grade-options">
+          <button type="button" class="grade-btn active" data-grade="sunset">
+            <span class="grade-swatch grade-sunset"></span>
+            <span class="grade-label">Sunset Boulevard</span>
+          </button>
+          <button type="button" class="grade-btn" data-grade="neon">
+            <span class="grade-swatch grade-neon"></span>
+            <span class="grade-label">Neon Noir</span>
+          </button>
+          <button type="button" class="grade-btn" data-grade="golden">
+            <span class="grade-swatch grade-golden"></span>
+            <span class="grade-label">Golden Hour</span>
+          </button>
+          <button type="button" class="grade-btn" data-grade="vibrant">
+            <span class="grade-swatch grade-vibrant"></span>
+            <span class="grade-label">Vibrant Pop</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Section: Panel & Photo Framing -->
+      <section class="deck-section">
+        <div class="section-header-row">
+          <h2 class="section-title"><span class="section-icon">▤</span> Panel Photos &amp; Crop</h2>
+          <span class="active-panel-tag" id="active-panel-tag">Editing Panel 1</span>
+        </div>
+
+        <div class="panel-selector-bar" id="panel-tabs">
+          <!-- Dynamically populated panel tabs -->
+        </div>
+
+        <div class="field-group photo-sources">
+          <label class="field-label">Photo Source for Active Panel</label>
+          <div class="source-buttons">
+            <button type="button" class="btn-sm" id="btn-sample-boulevard">Boulevard Sample</button>
+            <button type="button" class="btn-sm" id="btn-sample-pier">Pier Sample</button>
+            <label class="upload-label">
+              <span>Upload Custom Photo</span>
+              <input id="photo-file" type="file" accept="image/*">
+            </label>
+          </div>
+          <button type="button" class="btn-secondary" id="btn-fill-all">Fill All Panels With Current Photo</button>
+        </div>
+
+        <div class="field-row">
+          <div class="slider-field">
+            <label for="pan-x">Pan X <span id="val-pan-x" class="val-badge">0%</span></label>
+            <input id="pan-x" type="range" min="-100" max="100" value="0">
+          </div>
+          <div class="slider-field">
+            <label for="pan-y">Pan Y <span id="val-pan-y" class="val-badge">0%</span></label>
+            <input id="pan-y" type="range" min="-100" max="100" value="0">
+          </div>
+        </div>
+
+        <div class="slider-field">
+          <label for="zoom">Zoom Scale <span id="val-zoom" class="val-badge">1.0x</span></label>
+          <input id="zoom" type="range" min="100" max="300" value="100">
+        </div>
+      </section>
+
+      <!-- Section: Typography & Badges -->
+      <section class="deck-section">
+        <h2 class="section-title"><span class="section-icon">★</span> Typography &amp; Badges</h2>
+        
+        <div class="field-group">
+          <label for="caption" class="field-label">Main Title / Caption</label>
+          <input id="caption" type="text" maxlength="32" value="LEONIDA DREAMS" placeholder="e.g. LEONIDA DREAMS">
+        </div>
+
+        <div class="field-group">
+          <label for="subtitle" class="field-label">Subtitle / Tagline</label>
+          <input id="subtitle" type="text" maxlength="45" value="THE LEONIDA CHRONICLES" placeholder="e.g. THE LEONIDA CHRONICLES">
+        </div>
+
+        <div class="field-row">
+          <div class="select-field">
+            <label for="lettering-style" class="field-label">Lettering Style</label>
+            <select id="lettering-style">
+              <option value="sunset" selected>Vice Sunset Gradient</option>
+              <option value="white">Classic Bold White 3D</option>
+              <option value="neon">Neon Cyan &amp; Magenta</option>
+            </select>
+          </div>
+          <div class="select-field">
+            <label for="badge-style" class="field-label">Badge Stamp</label>
+            <select id="badge-style">
+              <option value="vi" selected>Leonida "VI" Crest</option>
+              <option value="advisory">Parental Advisory (Explicit)</option>
+              <option value="palm">Palm Sunset Crest</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Action & Export -->
+      <section class="deck-section export-section">
+        <button id="export" type="button" class="btn-primary">
+          <span class="btn-icon">⬇</span>
+          <span class="btn-text">Export High-Res PNG</span>
+        </button>
+        <p id="status" class="status-indicator" role="status">Ready to create cover art</p>
+      </section>
+    </div>
+  </aside>
+
+  <!-- Right Canvas Preview Stage -->
+  <main class="preview-stage">
+    <div class="stage-toolbar">
+      <div class="stage-info">
+        <span class="stage-tag" id="res-tag">1920 &times; 1080 px</span>
+        <span class="stage-hint">Click any panel on canvas to select &amp; position</span>
+      </div>
+      <div class="stage-actions">
+        <button type="button" class="btn-stage" id="btn-quick-random">Surprise Mix</button>
+      </div>
+    </div>
+    <div class="canvas-viewport" id="canvas-container">
+      <canvas id="cover" width="1920" height="1080" aria-label="Cover Art Preview"></canvas>
+    </div>
+  </main>
+</div>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>

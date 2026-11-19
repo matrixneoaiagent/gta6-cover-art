@@ -1,15 +1,27 @@
-// A working gta6-cover-art-01 entry (Node 22, standard library only): the app is this directory's app/ folder, plain
-// static files a desktop browser loads offline (app/index.html and its ES modules, no library and no network
-// request), and the program hands it in. It copies app/ and screenshots/ from beside this file to /output and writes
-// /output/dossier.json, the summary the judge reads, with the vendored make.fun library. Only the plumbing, not the
-// cover art the bounty asks for: Cover Snap, a plain one-photo square cover with a sunset tint and a bold caption,
-// exported as a 1080 x 1080 PNG. Its two sample photos (app/samples/) were made for make.fun with an image model and
-// are free to use. Build your own GTA-style cover maker in its place, put your 3 or 4 PNG or JPEG screenshots in
-// screenshots/ (the first by name is the cover) and run it.
-//
-// Serve it locally with `node serve.ts`, then open http://localhost:8080.
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+/**
+ * Vice Graphix // GTA 6-Style Multi-Panel Cover Art Generator
+ * ==========================================================
+ * Bounty: gta6-cover-art-01 (make.fun)
+ * 
+ * Features & Architecture:
+ * - 100% Offline Static Web App running with zero network requests at runtime.
+ * - Multi-panel comic poster layouts:
+ *     1. "Vice Classic" (4 panels: large vertical hero panel on left, 3 stacked detail panels on right)
+ *     2. "Ocean Drive" (3 panels: wide panoramic hero panel on top, 2 vertical split panels below)
+ *     3. "Neon Grid" (5 panels: asymmetrical poster grid with prominent hero block and surrounding detail cells)
+ *     4. "Poster Frame" (3 panels: full-bleed background panel with 2 elevated inset cards)
+ * - Authentic 8-12px dark comic borders with clean miters and inner vignette.
+ * - 4 Vice City Sunset & Neon color grade passes:
+ *     1. "Sunset Boulevard" (warm golden highlights, magenta/purple midtones, deep navy shadows)
+ *     2. "Neon Noir" (electric cyan & hot pink duo-tone punch)
+ *     3. "Golden Hour" (rich amber, warm glow, high dynamic range)
+ *     4. "Vibrant Pop" (punchy saturation, high contrast posterized feel)
+ * - Per-panel image management: Pan X, Pan Y, and Zoom (1.0x - 3.0x) controls, direct canvas hit-testing to click and select panels, custom offline file upload via FileReader data URLs, and sample photo quick fill.
+ * - Bold typography engine using bundled OFL fonts (Oswald Bold, Montserrat Bold) with 3D comic extrusion, sunset gradient fills, dual neon glows, and dark subtitle pill banners.
+ * - Stylized vector badges: Leonida "VI" Crest, Parental Advisory (Leonida Explicit), and Retro Palm Sun Crest.
+ * - Multi-resolution canvas export: 16:9 Landscape (1920x1080), 1:1 Square (1080x1080), and 4:5 Portrait (1080x1350).
+ * - Full support for automated shot modes (?shot=cover, ?shot=editor, ?shot=square, ?shot=portrait).
+ */
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
