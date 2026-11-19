@@ -3,21 +3,181 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>GTA 6 Style Multi-Panel Cover Art Generator</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
+<div class="app-container">
+  <!-- Controls Sidebar -->
+  <aside class="sidebar">
+    <div class="brand-header">
+      <h1 class="brand-title">
+        VICE STUDIO
+      </h1>
+      <span class="brand-badge">COVER ART</span>
+    </div>
+
+    <div class="control-sections">
+      <!-- 1. Layouts -->
+      <div class="section-group">
+        <h2 class="section-title">Cover Layout</h2>
+        <div class="btn-grid" id="layoutBtns">
+          <button class="option-btn active" data-layout="classic" type="button">
+            <span>Vice Classic</span>
+            <small style="opacity:0.7">4 Panels</small>
+          </button>
+          <button class="option-btn" data-layout="ocean" type="button">
+            <span>Ocean Drive</span>
+            <small style="opacity:0.7">3 Panels</small>
+          </button>
+          <button class="option-btn" data-layout="neon" type="button">
+            <span>Neon Grid</span>
+            <small style="opacity:0.7">5 Panels</small>
+          </button>
+          <button class="option-btn" data-layout="poster" type="button">
+            <span>Poster Frame</span>
+            <small style="opacity:0.7">Inset Panels</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Export Aspect Ratio -->
+      <div class="section-group">
+        <h2 class="section-title">Aspect Ratio & Size</h2>
+        <div class="btn-grid" id="aspectBtns">
+          <button class="option-btn active" data-size="landscape" data-w="1920" data-h="1080" type="button">
+            <span>16:9 Landscape</span>
+            <small style="opacity:0.7">1920 x 1080</small>
+          </button>
+          <button class="option-btn" data-size="square" data-w="1080" data-h="1080" type="button">
+            <span>1:1 Square</span>
+            <small style="opacity:0.7">1080 x 1080</small>
+          </button>
+          <button class="option-btn" data-size="portrait" data-w="1080" data-h="1350" type="button">
+            <span>4:5 Portrait</span>
+            <small style="opacity:0.7">1080 x 1350</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Panel Selector & Framing -->
+      <div class="section-group">
+        <h2 class="section-title">Panel Customization</h2>
+        <div class="panel-tab-bar" id="panelTabs">
+          <!-- Dynamic panel tabs populated by JS -->
+        </div>
+
+        <div class="field-row">
+          <label class="field-label">Panel Photo Source</label>
+          <div class="file-input-wrapper">
+            <div class="file-btn">+ Upload Custom Photo</div>
+            <input id="photoFileInput" type="file" accept="image/*">
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="btnSampleBoulevard" class="btn-secondary" type="button">Boulevard</button>
+          <button id="btnSamplePier" class="btn-secondary" type="button">Pier Sunset</button>
+          <button id="btnFillAll" class="btn-secondary" type="button">Fill All</button>
+        </div>
+
+        <div class="field-row">
+          <label class="field-label">Pan X <span id="panXVal" class="val">0%</span></label>
+          <div class="slider-ctrl">
+            <input id="sliderPanX" type="range" min="-100" max="100" value="0">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field-label">Pan Y <span id="panYVal" class="val">0%</span></label>
+          <div class="slider-ctrl">
+            <input id="sliderPanY" type="range" min="-100" max="100" value="0">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="field-label">Zoom <span id="zoomVal" class="val">1.2x</span></label>
+          <div class="slider-ctrl">
+            <input id="sliderZoom" type="range" min="100" max="300" value="120">
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Sunset & Neon Color Grade -->
+      <div class="section-group">
+        <h2 class="section-title">Color Grade Preset</h2>
+        <div class="btn-grid" id="gradeBtns">
+          <button class="option-btn active" data-grade="sunset" type="button">Sunset Boulevard</button>
+          <button class="option-btn" data-grade="neon" type="button">Neon Noir</button>
+          <button class="option-btn" data-grade="golden" type="button">Golden Hour</button>
+          <button class="option-btn" data-grade="vibrant" type="button">Vibrant Pop</button>
+        </div>
+      </div>
+
+      <!-- 5. Typography & Caption Engine -->
+      <div class="section-group">
+        <h2 class="section-title">Typography & Caption</h2>
+        <div class="field-row">
+          <label class="field-label">Main Title</label>
+          <input id="inputTitle" type="text" maxlength="32" value="LEONIDA DREAMS">
+        </div>
+
+        <div class="field-row">
+          <label class="field-label">Subtitle / Tagline</label>
+          <input id="inputSubtitle" type="text" maxlength="40" value="THE LEONIDA CHRONICLES">
+        </div>
+
+        <div class="field-row">
+          <label class="field-label">Lettering Style</label>
+          <div class="btn-grid" id="styleBtns">
+            <button class="option-btn active" data-style="bold-white" type="button">Bold White</button>
+            <button class="option-btn" data-style="sunset-grad" type="button">Sunset Gradient</button>
+            <button class="option-btn" data-style="neon-glow" type="button">Neon Glow</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Stylized Badges -->
+      <div class="section-group">
+        <h2 class="section-title">Stylized Badges</h2>
+        <div class="btn-grid" id="badgeBtns">
+          <button class="option-btn active" data-badge="vi-crest" type="button">VI Crest</button>
+          <button class="option-btn" data-badge="parental" type="button">Advisory</button>
+          <button class="option-btn" data-badge="palm" type="button">Palm District</button>
+          <button class="option-btn" data-badge="none" type="button">None</button>
+        </div>
+      </div>
+
+      <!-- 7. Export PNG -->
+      <div class="section-group">
+        <button id="btnExport" class="export-btn" type="button">
+          Export PNG
+        </button>
+        <div id="statusMsg" class="status-msg"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Stage Viewport -->
+  <main class="stage-area">
+    <div class="stage-toolbar">
+      <div class="stage-title">
+        LIVE CANVAS PREVIEW · <span id="aspectLabel" class="aspect-info">1920 × 1080 (16:9)</span>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted)">
+        Click any panel to select & pan/zoom
+      </div>
+    </div>
+
+    <div class="canvas-viewport" id="viewport">
+      <div class="canvas-wrapper">
+        <canvas id="coverCanvas" width="1920" height="1080" aria-label="GTA 6 Multi-Panel Cover Art"></canvas>
+      </div>
+    </div>
+  </main>
+</div>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
